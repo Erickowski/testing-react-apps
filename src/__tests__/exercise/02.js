@@ -2,11 +2,12 @@
 // http://localhost:3000/counter
 
 import * as React from 'react'
-import {act} from 'react-dom/test-utils'
-import {createRoot} from 'react-dom/client'
+// import {act} from 'react-dom/test-utils'
+// import {createRoot} from 'react-dom/client'
 // 🐨 import the `render` and `fireEvent` utilities from '@testing-library/react'
 import Counter from '../../components/counter'
 import {render, fireEvent} from '@testing-library/react'
+import {toHaveTextContent} from '@testing-library/dom'
 
 // NOTE: this is a new requirement in React 18
 // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#configuring-your-testing-environment
@@ -52,7 +53,7 @@ test('counter increments and decrements when the buttons are clicked', () => {
   // })
   // act(() => increment.dispatchEvent(incrementClickEvent))
   fireEvent.click(increment)
-  expect(message.textContent).toBe('Current count: 1')
+  expect(message).toHaveTextContent('Current count: 1')
   // const decrementClickEvent = new MouseEvent('click', {
   //   bubbles: true,
   //   cancelable: true,
@@ -60,5 +61,5 @@ test('counter increments and decrements when the buttons are clicked', () => {
   // })
   // act(() => decrement.dispatchEvent(decrementClickEvent))
   fireEvent.click(decrement)
-  expect(message.textContent).toBe('Current count: 0')
+  expect(message).toHaveTextContent('Current count: 0')
 })
