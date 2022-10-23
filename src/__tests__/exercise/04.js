@@ -12,11 +12,12 @@ test('submitting the form calls onSubmit with username and password', async () =
   // accepts the data and assigns submittedData to the data that was submitted
   // 💰 if you need a hand, here's what the handleSubmit function should do:
   // const handleSubmit = data => (submittedData = data)
-  const buildLoginForm = () => ({
+  const buildLoginForm = overrides => ({
     username: faker.internet.userName(),
     password: faker.internet.password(),
+    ...overrides,
   })
-  const {username, password} = buildLoginForm()
+  const {username, password} = buildLoginForm({password: 'abc'})
   // let submittedData = {}
   const handleSubmit = jest.fn()
   // 🐨 render the login with your handleSubmit function as the onSubmit prop
