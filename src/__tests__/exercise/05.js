@@ -7,7 +7,7 @@ import {render, screen, waitForElementToBeRemoved} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {build, fake} from '@jackfranklin/test-data-bot'
 // 🐨 you'll need to import rest from 'msw' and setupServer from msw/node
-// import {rest} from 'msw'
+import {rest} from 'msw'
 import {setupServer} from 'msw/node'
 import Login from '../../components/login-submission'
 import {handlers} from '../../test/server-handlers'
@@ -41,6 +41,7 @@ const server = setupServer(
 
 // 🐨 before all the tests, start the server with `server.listen()`
 beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
 // 🐨 after all the tests, stop the server with `server.close()`
 afterAll(() => server.close())
 
@@ -84,5 +85,25 @@ test(`logging in displays the password error`, async () => {
   await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
   expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
     `"password required"`,
+  )
+})
+
+test(`logging in displays the 500 error`, async () => {
+  server.use(
+    rest.post(
+      'https://auth-provider.example.com/api/login',
+      async (req, res, ctx) => {
+        return res(
+          ctx.status(500),
+          ctx.json({message: 'Internal Server Error'}),
+        )
+      },
+    ),
+  )
+  render(<Login />)
+  await userEvent.click(screen.getByRole('button', {name: /submit/i}))
+  await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"Internal Server Error"`,
   )
 })
