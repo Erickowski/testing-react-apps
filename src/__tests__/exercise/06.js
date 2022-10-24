@@ -4,24 +4,27 @@
 import * as React from 'react'
 import {render, screen, act} from '@testing-library/react'
 import Location from '../../examples/location'
+import {useCurrentPosition} from 'react-use-geolocation'
+
+jest.mock('react-use-geolocation')
 
 // 🐨 set window.navigator.geolocation to an object that has a getCurrentPosition mock function
-beforeAll(() => {
-  window.navigator.geolocation = {
-    getCurrentPosition: jest.fn(),
-  }
-})
+// beforeAll(() => {
+//   window.navigator.geolocation = {
+//     getCurrentPosition: jest.fn(),
+//   }
+// })
 
 // 💰 I'm going to give you this handy utility function
 // it allows you to create a promise that you can resolve/reject on demand.
-function deferred() {
-  let resolve, reject
-  const promise = new Promise((res, rej) => {
-    resolve = res
-    reject = rej
-  })
-  return {promise, resolve, reject}
-}
+// function deferred() {
+//   let resolve, reject
+//   const promise = new Promise((res, rej) => {
+//     resolve = res
+//     reject = rej
+//   })
+//   return {promise, resolve, reject}
+// }
 // 💰 Here's an example of how you use this:
 // const {promise, resolve, reject} = deferred()
 // promise.then(() => {/* do something */})
@@ -40,7 +43,7 @@ test('displays the users current location', async () => {
     },
   }
   // 🐨 create a deferred promise here
-  const {promise, resolve, reject} = deferred()
+  // const {promise, resolve, reject} = deferred()
   // 🐨 Now we need to mock the geolocation's getCurrentPosition function
   // To mock something you need to know its API and simulate that in your mock:
   // 📜 https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition
@@ -53,11 +56,18 @@ test('displays the users current location', async () => {
   // 🐨 the first argument of your mock should accept a callback
   // 🐨 you'll call the callback when the deferred promise resolves
   // 💰 promise.then(() => {/* call the callback with the fake position */})
-  window.navigator.geolocation.getCurrentPosition.mockImplementation(
-    callback => {
-      promise.then(() => callback(fakePosition))
-    },
-  )
+  // window.navigator.geolocation.getCurrentPosition.mockImplementation(
+  //   callback => {
+  //     promise.then(() => callback(fakePosition))
+  //   },
+  // )
+  let setReturnValue
+  function useMockCurrentPosition() {
+    const state = React.useState([])
+    setReturnValue = state[1]
+    return state[0]
+  }
+  useCurrentPosition.mockImplementation(useMockCurrentPosition)
   // 🐨 now that setup is done, render the Location component itself
   render(<Location />)
   // 🐨 verify the loading spinner is showing up
@@ -71,9 +81,12 @@ test('displays the users current location', async () => {
   // If you'd like, learn about what this means and see if you can figure out
   // how to make the warning go away (tip, you'll need to use async act)
   // 📜 https://kentcdodds.com/blog/fix-the-not-wrapped-in-act-warning
-  await act(async () => {
-    resolve()
-    await promise
+  // await act(async () => {
+  //   resolve()
+  //   await promise
+  // })
+  act(() => {
+    setReturnValue([fakePosition])
   })
   // 🐨 verify the loading spinner is no longer in the document
   //    (💰 use queryByLabelText instead of getByLabelText)
