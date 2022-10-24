@@ -64,3 +64,21 @@ test(`logging in displays the user's username`, async () => {
   // 🐨 assert that the username is on the screen
   expect(screen.getByText(username)).toBeInTheDocument()
 })
+
+test(`logging in displays the username error`, async () => {
+  render(<Login />)
+  const {password} = buildLoginForm()
+  await userEvent.type(screen.getByLabelText(/password/i), password)
+  await userEvent.click(screen.getByRole('button', {name: /submit/i}))
+  await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
+  expect(screen.getByText('username required')).toBeInTheDocument()
+})
+
+test(`logging in displays the password error`, async () => {
+  render(<Login />)
+  const {username} = buildLoginForm()
+  await userEvent.type(screen.getByLabelText(/username/i), username)
+  await userEvent.click(screen.getByRole('button', {name: /submit/i}))
+  await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
+  expect(screen.getByText('password required')).toBeInTheDocument()
+})
