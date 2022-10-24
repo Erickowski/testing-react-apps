@@ -71,7 +71,9 @@ test(`logging in displays the username error`, async () => {
   await userEvent.type(screen.getByLabelText(/password/i), password)
   await userEvent.click(screen.getByRole('button', {name: /submit/i}))
   await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
-  expect(screen.getByText('username required')).toBeInTheDocument()
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"username required"`,
+  )
 })
 
 test(`logging in displays the password error`, async () => {
@@ -80,5 +82,7 @@ test(`logging in displays the password error`, async () => {
   await userEvent.type(screen.getByLabelText(/username/i), username)
   await userEvent.click(screen.getByRole('button', {name: /submit/i}))
   await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
-  expect(screen.getByText('password required')).toBeInTheDocument()
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"password required"`,
+  )
 })
