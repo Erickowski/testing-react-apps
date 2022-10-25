@@ -23,14 +23,25 @@ import useCounter from '../../components/use-counter'
 //   )
 // }
 
-test('exposes the count and increment/decrement functions', async () => {
-  // 🐨 render the component
-  let result
-  function TestComponent(props) {
-    result = useCounter(props)
+function setup({initialProps} = {}) {
+  const result = {}
+  function TestComponent() {
+    result.current = useCounter(initialProps)
     return null
   }
   render(<TestComponent />)
+  return result
+}
+
+test('exposes the count and increment/decrement functions', async () => {
+  const result = setup()
+  // 🐨 render the component
+  // let result
+  // function TestComponent(props) {
+  //   result = useCounter(props)
+  //   return null
+  // }
+  // render(<TestComponent />)
   // 🐨 get the elements you need using screen
   // const increment = screen.getByText(/increment/i)
   // const decrement = screen.getByText(/decrement/i)
@@ -42,11 +53,25 @@ test('exposes the count and increment/decrement functions', async () => {
   // expect(message).toHaveTextContent('The count is: 1')
   // await userEvent.click(decrement)
   // expect(message).toHaveTextContent('The count is: 0')
-  expect(result.count).toBe(0)
-  act(() => result.increment())
-  expect(result.count).toBe(1)
-  act(() => result.decrement())
-  expect(result.count).toBe(0)
+  expect(result.current.count).toBe(0)
+  act(() => result.current.increment())
+  expect(result.current.count).toBe(1)
+  act(() => result.current.decrement())
+  expect(result.current.count).toBe(0)
+})
+
+test('allows customization of the initial count', () => {
+  const result = setup({initialProps: {initialCount: 1}})
+  expect(result.current.count).toBe(1)
+})
+
+test('allows customization of the step', () => {
+  const result = setup({initialProps: {step: 2}})
+  expect(result.current.count).toBe(0)
+  act(() => result.current.increment())
+  expect(result.current.count).toBe(2)
+  act(() => result.current.decrement())
+  expect(result.current.count).toBe(0)
 })
 
 /* eslint no-unused-vars:0 */
