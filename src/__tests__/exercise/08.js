@@ -2,7 +2,7 @@
 // http://localhost:3000/counter-hook
 
 import * as React from 'react'
-import {render, screen, act} from '@testing-library/react'
+import {render, screen, act, renderHook} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import useCounter from '../../components/use-counter'
 
@@ -23,18 +23,19 @@ import useCounter from '../../components/use-counter'
 //   )
 // }
 
-function setup({initialProps} = {}) {
-  const result = {}
-  function TestComponent() {
-    result.current = useCounter(initialProps)
-    return null
-  }
-  render(<TestComponent />)
-  return result
-}
+// function setup({initialProps} = {}) {
+//   const result = {}
+//   function TestComponent() {
+//     result.current = useCounter(initialProps)
+//     return null
+//   }
+//   render(<TestComponent />)
+//   return result
+// }
 
 test('exposes the count and increment/decrement functions', async () => {
-  const result = setup()
+  // const result = setup()
+  const {result} = renderHook(useCounter)
   // 🐨 render the component
   // let result
   // function TestComponent(props) {
@@ -61,17 +62,31 @@ test('exposes the count and increment/decrement functions', async () => {
 })
 
 test('allows customization of the initial count', () => {
-  const result = setup({initialProps: {initialCount: 1}})
+  // const result = setup({initialProps: {initialCount: 1}})
+  const {result} = renderHook(useCounter, {initialProps: {initialCount: 1}})
   expect(result.current.count).toBe(1)
 })
 
 test('allows customization of the step', () => {
-  const result = setup({initialProps: {step: 2}})
+  // const result = setup({initialProps: {step: 2}})
+  const {result} = renderHook(useCounter, {initialProps: {step: 2}})
   expect(result.current.count).toBe(0)
   act(() => result.current.increment())
   expect(result.current.count).toBe(2)
   act(() => result.current.decrement())
   expect(result.current.count).toBe(0)
+})
+
+test('the step can be changed', () => {
+  const {result, rerender} = renderHook(useCounter, {
+    initialProps: {step: 3},
+  })
+  expect(result.current.count).toBe(0)
+  act(() => result.current.increment())
+  expect(result.current.count).toBe(3)
+  rerender({step: 2})
+  act(() => result.current.decrement())
+  expect(result.current.count).toBe(1)
 })
 
 /* eslint no-unused-vars:0 */
